@@ -1,0 +1,40 @@
+version: '3.7'
+services:
+    web:
+        build: ./config/php/
+        container_name: "php74-1"
+        volumes:
+            - "./html/:/var/www/html"
+            - "./config/php/php.ini:/usr/local/etc/php/php.ini"
+        privileged: true
+        ports:
+            - "5000:80"
+            - "10000:22"
+        depends_on:
+            - mysql
+    mysql:
+        image: mysql:8
+        volumes:
+            - ./mysql:/var/lib/mysql
+            - ./config/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+        environment:
+            - MYSQL_ROOT_PASSWORD=root
+            - MYSQL_DATABASE=test_db
+            - MYSQL_USER=test_user
+            - MYSQL_PASSWORD=test_password
+        ports:
+            - "4306:3306"
+        container_name: mysql8-1
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        environment:
+            - PMA_ARBITRARY=1
+            - PMA_HOST=mysql
+            - PMA_USER=root
+            - PMA_PASSWORD=root
+        links:
+            - mysql
+        ports:
+            - 4040:80
+        volumes:
+            - ./phpmyadmin/sessions:/sessions
